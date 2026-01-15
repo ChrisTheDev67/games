@@ -37,6 +37,70 @@
             color: var(--text-secondary);
             text-align: center;
         }
+
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            margin-top: 1.5rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 180px;
+        }
+
+        .d-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: white;
+            font-size: 1.5rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            touch-action: manipulation;
+            /* Prevent zoom/scroll */
+        }
+
+        .d-btn:active {
+            background: var(--primary-color);
+            transform: scale(0.95);
+        }
+
+        .d-btn.up {
+            grid-column: 2;
+        }
+
+        .d-btn.left {
+            grid-column: 1;
+        }
+
+        .d-btn.down {
+            grid-column: 2;
+        }
+
+        .d-btn.right {
+            grid-column: 3;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-controls {
+                display: grid;
+            }
+
+            .game-info {
+                font-size: 1rem;
+                gap: 1rem;
+            }
+
+            #gameCanvas {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+                aspect-ratio: 1/1;
+            }
+        }
     </style>
 </head>
 
@@ -69,6 +133,16 @@
                 <div class="game-controls">
                     <p>Use <strong>Arrow Keys</strong> or <strong>WASD</strong> to move</p>
                     <p>Press <strong>Space</strong> to start/restart</p>
+                </div>
+
+                <!-- Mobile D-Pad -->
+                <div class="mobile-controls">
+                    <div></div>
+                    <button class="d-btn up" id="btnUp">⬆️</button>
+                    <div></div>
+                    <button class="d-btn left" id="btnLeft">⬅️</button>
+                    <button class="d-btn down" id="btnDown">⬇️</button>
+                    <button class="d-btn right" id="btnRight">➡️</button>
                 </div>
             </div>
         </section>
@@ -220,8 +294,20 @@
             gameLoop = setInterval(() => {
                 moveSnake();
                 drawGame();
-            }, 100);
+            }, 120); // Slightly slower for easier mobile play? Keeping 100 for now.
         }
+
+        // Mobile Button Handlers
+        document.getElementById('btnUp').addEventListener('touchstart', (e) => { e.preventDefault(); if (dy !== 1) { dx = 0; dy = -1; } if (!gameRunning) startGame(); });
+        document.getElementById('btnDown').addEventListener('touchstart', (e) => { e.preventDefault(); if (dy !== -1) { dx = 0; dy = 1; } if (!gameRunning) startGame(); });
+        document.getElementById('btnLeft').addEventListener('touchstart', (e) => { e.preventDefault(); if (dx !== 1) { dx = -1; dy = 0; } if (!gameRunning) startGame(); });
+        document.getElementById('btnRight').addEventListener('touchstart', (e) => { e.preventDefault(); if (dx !== -1) { dx = 1; dy = 0; } if (!gameRunning) startGame(); });
+
+        // Also add click for debugging on desktop
+        document.getElementById('btnUp').addEventListener('click', () => { if (dy !== 1) { dx = 0; dy = -1; } if (!gameRunning) startGame(); });
+        document.getElementById('btnDown').addEventListener('click', () => { if (dy !== -1) { dx = 0; dy = 1; } if (!gameRunning) startGame(); });
+        document.getElementById('btnLeft').addEventListener('click', () => { if (dx !== 1) { dx = -1; dy = 0; } if (!gameRunning) startGame(); });
+        document.getElementById('btnRight').addEventListener('click', () => { if (dx !== -1) { dx = 1; dy = 0; } if (!gameRunning) startGame(); });
 
         document.addEventListener('keydown', (e) => {
             // Prevent arrow keys and space from scrolling the page

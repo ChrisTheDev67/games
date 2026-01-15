@@ -413,16 +413,22 @@ body {
 
 .game-card {
   background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid var(--border-color);
-  transition: all var(--transition-medium);
+  transition: all 0.3s ease;
   text-decoration: none;
   color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+canvas {
+  max-width: 100%;
 }
 
 .game-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-5px);
   box-shadow: var(--shadow-glow);
   border-color: var(--primary-color);
 }
