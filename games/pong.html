@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play Pong - Classic arcade game at Chris's Games">
+    <title>Pong - Chris's Games</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            min-height: 600px;
+        }
+
+        #gameCanvas {
+            background: #1a1a2e;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-glow);
+            display: none;
+            /* Hidden strictly until game starts */
+        }
+
+        .game-info {
+            display: flex;
+            gap: 4rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: none;
+            /* Hidden until game starts */
+        }
+
+        .player-score {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .player-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .game-controls {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            text-align: center;
+            display: none;
+            /* Hidden until game starts */
+        }
+
+        /* Mode Selection */
+        .difficulty-select {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .difficulty-select h2 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .difficulty-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .difficulty-btn {
+            padding: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .difficulty-btn:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .difficulty-info {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .difficulty-btn.easy {
+            border-color: #10b981;
+        }
+
+        .difficulty-btn.easy:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .difficulty-btn.normal {
+            border-color: #3b82f6;
+        }
+
+        .difficulty-btn.normal:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .difficulty-btn.medium {
+            border-color: #f59e0b;
+        }
+
+        .difficulty-btn.medium:hover {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .difficulty-btn.hard {
+            border-color: #ef4444;
+        }
+
+        .difficulty-btn.hard:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .round-info {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .win-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .win-screen h2 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .win-screen p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-restart {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            background: var(--primary-hover);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">🎮 Chris's Games</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Main Menu</a></li>
+                <li><a href="../about.html">About Me</a></li>
+                <li><a href="../games.html">Games</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="page-section">
+            <h1 class="section-title">🏓 Pong Challenge</h1>
+
+            <div class="game-container">
+                <!-- Difficulty Selection -->
+                <div class="difficulty-select" id="difficultySelect">
+                    <h2>Choose Difficulty</h2>
+                    <div class="difficulty-buttons">
+                        <button class="difficulty-btn easy" onclick="startGame('easy')">
+                            <span>😊 Easy</span>
+                            <span class="difficulty-info">75% Speed • +2% Increase • 10 Blocks</span>
+                        </button>
+                        <button class="difficulty-btn normal" onclick="startGame('normal')">
+                            <span>🙂 Normal</span>
+                            <span class="difficulty-info">100% Speed • +5% Increase • 20 Blocks</span>
+                        </button>
+                        <button class="difficulty-btn medium" onclick="startGame('medium')">
+                            <span>😤 Medium</span>
+                            <span class="difficulty-info">125% Speed • +6% Increase • 30 Blocks</span>
+                        </button>
+                        <button class="difficulty-btn hard" onclick="startGame('hard')">
+                            <span>💀 Hard</span>
+                            <span class="difficulty-info">150% Speed • +8% Increase • 30 Blocks</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Game Info Headers -->
+                <div class="game-info" id="gameInfo">
+                    <div class="player-score">
+                        <span class="player-label">Rounds Won</span>
+                        <strong id="roundsWon">0</strong>
+                    </div>
+                    <div class="player-score">
+                        <span class="player-label">Blocks Left</span>
+                        <strong id="blocksLeft">0</strong>
+                    </div>
+                </div>
+
+                <div class="round-info" id="roundDisplay">Round 1</div>
+
+                <canvas id="gameCanvas" width="600" height="400"></canvas>
+
+                <div class="game-controls" id="gameControls">
+                    <p>Use <strong>Arrow Keys</strong> or <strong>W/S</strong> to move</p>
+                    <p>Block the ball to win the round!</p>
+                </div>
+
+                <!-- Win/Lose Screen -->
+                <div class="win-screen" id="winScreen">
+                    <h2 id="resultTitle">Victory!</h2>
+                    <p id="resultMessage">You completed the challenge!</p>
+                    <button class="btn-restart" onclick="location.reload()">Play Again</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameInfo = document.getElementById('gameInfo');
+        const gameControls = document.getElementById('gameControls');
+        const difficultySelect = document.getElementById('difficultySelect');
+        const roundDisplay = document.getElementById('roundDisplay');
+        const roundsWonEl = document.getElementById('roundsWon');
+        const blocksLeftEl = document.getElementById('blocksLeft');
+        const winScreen = document.getElementById('winScreen');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultMessage = document.getElementById('resultMessage');
+
+        // Game Constants
+        const paddleWidth = 10;
+        const paddleHeight = 80;
+        const ballSize = 12;
+        const baseSpeedX = 5;
+        const baseSpeedY = 3;
+        const paddleSpeed = 8;
+
+        // Game State
+        let playerY, computerY, ballX, ballY, ballSpeedX, ballSpeedY;
+        let gameRunning = false;
+        let animationId;
+
+        // Difficulty State
+        let currentMode = 'normal';
+        let currentRound = 1;
+        let roundsWon = 0;
+        let blocksRemaining = 0;
+        let speedMultiplier = 1;
+        let speedIncreaseRate = 0;
+        let goalBlocks = 0;
+
+        const MODES = {
+            easy: { speed: 0.75, increase: 0.02, goal: 10 },
+            normal: { speed: 1.0, increase: 0.05, goal: 20 },
+            medium: { speed: 1.25, increase: 0.06, goal: 30 },
+            hard: { speed: 1.5, increase: 0.08, goal: 30 }
+        };
+
+        function startGame(mode) {
+            currentMode = mode;
+            difficultySelect.style.display = 'none';
+            canvas.style.display = 'block';
+            gameInfo.style.display = 'flex';
+            gameControls.style.display = 'block';
+            roundDisplay.style.display = 'block';
+
+            // Initialize Match
+            currentRound = 1;
+            roundsWon = 0;
+
+            // Ensure any existing loop is cancelled
+            if (animationId) cancelAnimationFrame(animationId);
+            gameRunning = true;
+
+            startRound();
+            gameLoop();
+        }
+
+        function startRound() {
+            // Reset for new round
+            const settings = MODES[currentMode];
+            speedMultiplier = settings.speed;
+            speedIncreaseRate = settings.increase;
+            goalBlocks = settings.goal;
+            blocksRemaining = goalBlocks;
+
+            // UI Updates
+            roundDisplay.textContent = `Round ${currentRound} of 3`;
+            roundsWonEl.textContent = roundsWon;
+            blocksLeftEl.textContent = blocksRemaining;
+
+            resetPositions();
+            // Note: We do NOT start a new gameLoop here anymore, as it's already running.
+        }
+
+        function resetPositions() {
+            playerY = canvas.height / 2 - paddleHeight / 2;
+            computerY = canvas.height / 2 - paddleHeight / 2;
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+
+            // Random start direction but scaled by current multiplier
+            const dirX = Math.random() > 0.5 ? 1 : -1;
+            const dirY = Math.random() - 0.5;
+
+            // Reset speed to the initial DIFFICULTY SPEED
+            ballSpeedX = dirX * baseSpeedX * speedMultiplier;
+            ballSpeedY = dirY * 6 * speedMultiplier;
+        }
+
+        const keys = {};
+
+        function update() {
+            if (!gameRunning) return;
+
+            // Player Movement
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) {
+                playerY = Math.max(0, playerY - paddleSpeed);
+            }
+            if (keys['ArrowDown'] || keys['s'] || keys['S']) {
+                playerY = Math.min(canvas.height - paddleHeight, playerY + paddleSpeed);
+            }
+
+            // Computer AI
+            let targetY = ballY;
+
+            // Smart AI (Predictive) for Medium/Hard
+            if (currentMode === 'medium' || currentMode === 'hard') {
+                // Only predict if ball is moving towards computer
+                if (ballSpeedX > 0) {
+                    const timeToReach = (canvas.width - 30 - ballX) / ballSpeedX;
+                    const predictedY = ballY + (ballSpeedY * timeToReach);
+
+                    // Handle bounces off top/bottom (simplified reflection)
+                    const bounces = Math.floor(predictedY / canvas.height);
+                    if (bounces % 2 === 0) {
+                        targetY = Math.abs(predictedY % canvas.height);
+                    } else {
+                        targetY = canvas.height - Math.abs(predictedY % canvas.height);
+                    }
+                } else {
+                    targetY = canvas.height / 2; // Return to center
+                }
+            } else {
+                targetY = ballY; // Simple tracking logic for Easy/Normal
+            }
+
+            const computerCenter = computerY + paddleHeight / 2;
+            const botSpeed = (currentMode === 'hard' || currentMode === 'medium') ? 12 : 6;
+
+            // Move bot towards target
+            if (Math.abs(targetY - computerCenter) > 10) {
+                if (targetY < computerCenter) {
+                    computerY -= botSpeed;
+                } else {
+                    computerY += botSpeed;
+                }
+            }
+            computerY = Math.max(0, Math.min(canvas.height - paddleHeight, computerY));
+
+            // Ball Physics
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Wall Collisions (Top/Bottom)
+            if (ballY <= 0 || ballY >= canvas.height) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Player Paddle Collision (Block!)
+            // Fixed: Expanded collision zone to prevent tunneling at high speeds
+            // Checks if ball is at paddle X (or passed it slightly) AND strictly moving left
+            if (ballX <= 30 && ballX >= 5 && ballY >= playerY - ballSize && ballY <= playerY + paddleHeight + ballSize && ballSpeedX < 0) {
+                ballSpeedX = Math.abs(ballSpeedX); // Bounce right
+
+                // Snap ball to face of paddle to prevent getting stuck
+                ballX = 30;
+
+                // Increase speed (BUT CAP AT 175% of Base Speed)
+                const maxSpeed = baseSpeedX * 1.75;
+                const currentSpeed = Math.abs(ballSpeedX);
+
+                if (currentSpeed < maxSpeed) {
+                    const speedFactor = 1 + speedIncreaseRate;
+                    ballSpeedX *= speedFactor;
+                    ballSpeedY *= speedFactor;
+
+                    // Clamp if exceeded
+                    if (Math.abs(ballSpeedX) > maxSpeed) {
+                        const scale = maxSpeed / Math.abs(ballSpeedX);
+                        ballSpeedX *= scale;
+                        ballSpeedY *= scale;
+                    }
+                }
+
+                // Angle variation
+                // Scale spin based on speed
+                const hitPoint = (ballY - playerY) / paddleHeight - 0.5;
+                let spinFactor = 8;
+                // Since max speed is around 8.75, we adjust spin logic slightly
+                if (Math.abs(ballSpeedX) > 7) spinFactor = 10;
+
+                ballSpeedY = hitPoint * spinFactor * speedMultiplier;
+
+                // Update Progress
+                blocksRemaining--;
+                blocksLeftEl.textContent = Math.max(0, blocksRemaining);
+
+                if (blocksRemaining <= 0) {
+                    roundWon();
+                }
+            }
+
+            // Computer Paddle Collision
+            // Expanded zone for computer too, just in case
+            if (ballX >= canvas.width - 30 && ballX <= canvas.width - 5 && ballY >= computerY - ballSize && ballY <= computerY + paddleHeight + ballSize && ballSpeedX > 0) {
+                ballSpeedX = -Math.abs(ballSpeedX); // Bounce left
+                ballX = canvas.width - 30; // Snap to face
+            }
+
+            // Lose Condition (Ball passes player)
+            if (ballX < 0) {
+                roundLost();
+            }
+
+            // INSTANT WIN Condition (Ball passes computer)
+            if (ballX > canvas.width) {
+                alert("GOAL! You scored on the AI! Instant Round Win!");
+                roundWon();
+            }
+        }
+
+        function roundWon() {
+            // Note: We don't stop gameRunning here unless game is over.
+            // Alert pauses execution naturally for the user.
+
+            roundsWon++;
+            roundsWonEl.textContent = roundsWon;
+
+            if (roundsWon >= 2) {
+                gameRunning = false; // Stop loop
+                showGameOver(true);
+            } else {
+                currentRound++;
+                alert(`Round ${currentRound - 1} Clear! Get ready for Round ${currentRound}!`);
+                startRound(); // Resets positions and speed
+            }
+        }
+
+        function roundLost() {
+            // Note: We don't stop gameRunning here
+            currentRound++;
+
+            if (currentRound > 3) {
+                gameRunning = false; // Stop loop
+                // Determine winner of best of 3
+                if (roundsWon >= 2) {
+                    showGameOver(true);
+                } else {
+                    showGameOver(false);
+                }
+            } else {
+                alert(`Round Lost! Next Round: ${currentRound}`);
+                startRound(); // Resets positions and speed
+            }
+        }
+
+        function showGameOver(victory) {
+            canvas.style.display = 'none';
+            gameInfo.style.display = 'none';
+            gameControls.style.display = 'none';
+            roundDisplay.style.display = 'none';
+            winScreen.style.display = 'flex';
+
+            if (victory) {
+                resultTitle.textContent = "🏆 VICTORY!";
+                resultTitle.style.color = "#10b981"; // Green
+                resultMessage.textContent = `You won ${roundsWon} rounds on ${currentMode.toUpperCase()} difficulty!`;
+            } else {
+                resultTitle.textContent = "❌ GAME OVER";
+                resultTitle.style.color = "#ef4444"; // Red
+                resultMessage.textContent = "You didn't win enough rounds. Try again!";
+            }
+        }
+
+        function draw() {
+            // Draw Background
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Center Line
+            ctx.setLineDash([10, 10]);
+            ctx.strokeStyle = 'rgba(99, 102, 241, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw Paddles & Ball (Simple Colors)
+            ctx.fillStyle = '#6366f1'; // Blue Player
+            ctx.fillRect(20, playerY, paddleWidth, paddleHeight);
+
+            ctx.fillStyle = '#ec4899'; // Pink Bot
+            ctx.fillRect(canvas.width - 30, computerY, paddleWidth, paddleHeight);
+
+            ctx.fillStyle = '#fff'; // White Ball
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function gameLoop() {
+            if (gameRunning) {
+                update();
+                draw();
+                animationId = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Input Handling
+        document.addEventListener('keydown', (e) => {
+            if (['ArrowUp', 'ArrowDown', ' ', 'w', 's'].includes(e.key)) e.preventDefault();
+            keys[e.key] = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+    </script>
+</body>
+
+</html>
