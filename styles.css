@@ -664,17 +664,62 @@ canvas {
 }
 
 @media (max-width: 768px) {
+  .navbar {
+    padding: 0 1rem;
+  }
+
+  .nav-container {
+    height: 60px;
+  }
+
+  .nav-logo {
+    font-size: 1.2rem;
+  }
+
+  .nav-links {
+    gap: 0.25rem;
+  }
+
+  .nav-links a {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .main-content {
+    padding-top: 60px;
+  }
+
+  .hero {
+    padding: 2rem 1.5rem;
+    gap: 3rem;
+  }
+
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 2.25rem;
+    /* Balanced size, not too huge */
+    line-height: 1.2;
   }
 
   .hero-subtitle {
     font-size: 1rem;
+    line-height: 1.6;
   }
 
   .hero-buttons {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    /* Full width for easier tapping */
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 300px;
+    /* But capped so they aren't comically wide on tablets */
+    margin: 0 auto;
+  }
+
+  .btn {
+    justify-content: center;
+    padding: 0.9rem;
+    /* Comfortable touch target */
   }
 
   .photo-frame {
@@ -695,18 +740,32 @@ canvas {
   .about-container {
     grid-template-columns: 1fr;
     text-align: center;
+    gap: 2rem;
   }
 
-  .nav-links {
-    gap: 0.25rem;
-  }
-
-  .nav-links a {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+  .about-avatar {
+    max-width: 200px;
+    font-size: 4rem;
   }
 
   .games-grid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .game-card-image {
+    height: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .nav-links a {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.8rem;
   }
 }
